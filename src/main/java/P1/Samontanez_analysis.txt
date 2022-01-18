@@ -1,0 +1,14 @@
+Runtime Analysis:
+
+When the input is a sorted array, the method "getCandidatePair" will be called in the main function.
+It will pass the array and the target for that array. In the "getCandidatePair" method, I used two trackers
+to find 2 matching pairs that when they add up they will be equal to the target. Every time the while loop
+is running, only one tracker gets updated (depending on if the program haven't found a match yet), it will
+then result in a program that will not scan the same numbers over and over.
+So this will give us in a runtime of O(n) or less (where n = the size of the array).
+
+When the input is unsorted, the method "getCandidatePair_unsorted" will be called in the main function.
+It will then pass the array and the target for that array. In the "getCandidatePair_unsorted" method, I
+implemented the HashSet to find the 2 matching pairs. In this, we only use one for-loop that will run n times
+or less (depending on if the program found a match before the for-loop ends).
+This method will then result in an O(n) time complexity (where n = the size of the array).
