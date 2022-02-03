@@ -1,0 +1,12 @@
+For searching 1 word, The worst case scenario time complexity for this program
+is O(N * (8 * L)):
+
+Where N is the total number of cells in the grid (N = row x column)
+and L is the length of each word which the program is trying to find. Then,
+for the backtracking part of the program, L will be multiplied to 8
+since the program need to visit and traverse all 8 directions
+(up, down, right, left, up-right, up-left, down-right, down-left) per cell.
+
+Therefore, if we are trying to search an x amount of words in the array,
+we just multiply it from the time complexity that we got from above.
+For worst case scenario: O(x * (N * (8 * L))).

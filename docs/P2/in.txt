@@ -1,4 +1,4 @@
-1
+2
 3 4 6
 C B A B
 B N O D
@@ -9,3 +9,12 @@ CNE
 NEC
 NEED
 NEEDON
+4 4 4
+c o m p
+a m a p
+a p s s
+x y z q
+mop
+comp
+omo
+maa

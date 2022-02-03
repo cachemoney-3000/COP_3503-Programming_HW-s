@@ -1,3 +1,6 @@
+/* COP 3503C Assignment 2
+This program is written by: Joshua Samontanez */
+
 package P1;
 
 import java.io.FileNotFoundException;
