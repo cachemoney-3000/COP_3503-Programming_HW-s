@@ -3,21 +3,27 @@ This program is written by: Joshua Samontanez */
 
 package P3;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Main {
-    public static void main(String[] args) throws FileNotFoundException {
+
+    public static void main(String[] args) throws IOException {
         Main set = new Main();
         // Get the file ready to read the input
-        Scanner scanner = new Scanner(new FileReader("docs/P3/in.txt"));
+        BufferedReader scanner = new BufferedReader(new FileReader("docs/P3/in2.txt"));
 
         // Reads the first three input on the first line of the file
-        int numComputers = scanner.nextInt();
-        int numConnections = scanner.nextInt();
-        int numDisconnections = scanner.nextInt();
+        String firstLine = scanner.readLine();
+        String[] arr1 = firstLine.split(" ", 3);
+
+        int numComputers = Integer.parseInt(arr1[0]);
+        int numConnections = Integer.parseInt(arr1[1]);
+        int numDisconnections = Integer.parseInt(arr1[2]);
 
         // Store the results into an array
         int[] results = new int[numDisconnections + 1];
@@ -26,8 +32,12 @@ public class Main {
 
         // Loop through all the connections
         for (int i = 0; i < numConnections; i++) {
-            int u = scanner.nextInt() - 1;
-            int v = scanner.nextInt() - 1;
+            String mLines = scanner.readLine();
+            String[] arr2 = mLines.split(" ", 2);
+
+            int u = Integer.parseInt(arr2[0]) - 1;
+            int v = Integer.parseInt(arr2[1]) - 1;
+
             // Store all the edges in the edges array, and initialize the status to 1
             edges[i] = new Edges(u, v, 1);
         }
@@ -35,18 +45,16 @@ public class Main {
         // Calculate the first current connectivity before the deletion
         results[0] = set.connect(numComputers, edges);
 
-        // Initialize removeList to store which edge to delete
-        int[] removeList = new int[numDisconnections];
         for (int i = 0; i < numDisconnections; i++){
-            removeList[i] = scanner.nextInt() - 1;
+            int dLines = Integer.parseInt(scanner.readLine()) - 1;
 
             // Once the program know what edge to remove, set the status of that edge to 0
-            edges[removeList[i]].setStatus(0);
+            edges[dLines].setStatus(0);
 
             // Calculate the current connectivity after an edge was deleted
             results[i + 1] = set.connect(numComputers, edges);
         }
-
+        scanner.close();
         // Print the final results
         set.printResults(results);
     }
@@ -72,10 +80,8 @@ public class Main {
             }
         }
 
-        // Counts how many sets exists
-        int numSets = DisjointSet.countSets;
         // Store the number of nodes in each sets
-        int[] numMembers = countMembers(numSets, set, numComputers);
+        int[] numMembers = set.countMembers();
         // Return the calculation of the current connectivity using the info that the program had from above
         return calculate(numMembers);
     }
@@ -92,49 +98,25 @@ public class Main {
 
         return total;
     }
-
-    public int[] countMembers(int numSets, DisjointSet set, int numComputers){
-        int[] numMembers = new int[numSets];
-        for(int i = 0; i < numSets; i++){
-            // Initialize the member to 1 for each sets
-            numMembers[i] = 1;
-        }
-        // Stores which node is the root
-        ArrayList<Integer> roots = new ArrayList<>();
-
-        // Loop through all the nodes
-        for(int i = 0; i < numComputers; i++){
-            // Find the parent of each node
-            int parent = set.find(i);
-
-            // If the root is not in the array list yet, add them
-            if(!roots.contains(parent)){
-                roots.add(parent);
-            }
-
-            // If the root already exists, increase the number of members for that parent
-            else {
-                numMembers[roots.indexOf(parent)]++;
-            }
-        }
-        return numMembers;
-    }
-
 }
 
 
 class DisjointSet {
     public static Pair[] parents;
     public static int countSets;
+    public static ArrayList<Integer> roots = new ArrayList<>();
 
     DisjointSet(int m){
         parents = new Pair[m];
+        // Remove the contents of the list every deletion of an edge
+        roots.clear();
         // Initialize the countSets to the number of nodes we have
         countSets = m;
 
         // Initialize our disjoint sets
         for(int i = 0; i < m; i++){
-            parents[i] = new Pair(i, 0);
+            parents[i] = new Pair(i, 0, 1);
+            roots.add(i);
         }
     }
 
@@ -152,29 +134,76 @@ class DisjointSet {
         countSets--;
 
         // Attach the smaller tree into the bigger tree
-        if(parents[root1].getHeight() > parents[root2].getHeight())
+        if(parents[root1].getHeight() > parents[root2].getHeight()){
             parents[root2].setID(root1);
+            // Increase the number of members inside the root node
+            parents[root1].incNumMembers();
+            // Remove the attached tree from the root list
+            removeFromList(root2);
+        }
 
-        else if(parents[root2].getHeight() > parents[root1].getHeight())
+
+        else if(parents[root2].getHeight() > parents[root1].getHeight()){
             parents[root1].setID(root2);
-            // If they have the same size
+            // Increase the number of members inside the root node
+            parents[root2].incNumMembers();
+            // Remove the attached tree from the root list
+            removeFromList(root1);
+        }
+
+        // If they have the same size
         else{
             // Attach the tree with bigger index into the bigger one
             parents[root2].setID(root1);
+            // Increase the number of members inside the root node
+            parents[root1].incNumMembers();
             // Increase the height of the root
             parents[root1].increaseHeight();
+            // Remove the attached tree from the root list
+            removeFromList(root2);
         }
     }
 
-    public int find(int ID){
-        int itemID = 0;
+    // Will remove an item from the roots list
+    public void removeFromList(int parent){
+        roots.remove(Integer.valueOf(parent));
+    }
 
-        // Keep looping until we find the root/parent of an item
-        while(itemID != parents[ID].getID()){
-            itemID = parents[ID].getID();
+    public int find(int ID){
+        // The item is already the root
+        if(ID == parents[ID].getID())
+            return ID;
+
+        // Find the item parents root
+        int result = find(parents[ID].getID());
+
+        // If the result is not the existing parent, make it the parent
+        if(result != parents[ID].getID()){
+            // Attach that item directly into the root
+            parents[ID].setID(result);
+            // Decrease the height of the root
+            parents[result].decreaseHeight();
         }
 
-        return itemID;
+        return result;
+    }
+
+    public int[] countMembers(){
+        int[] numMembers = new int[countSets];
+
+        // Sorts the list of roots in increasing order
+        Collections.sort(roots);
+
+        for(int i = 0; i < countSets; i++){
+            // Initialize the member to 1 for each sets
+            numMembers[i] = parents[roots.get(i)].getNumMembers();
+        }
+
+        // Used for testing the contents
+        // System.out.println(countSets);
+        // System.out.println(" Roots: " + roots);
+        // System.out.println(Arrays.toString(numMembers));
+        return numMembers;
     }
 
     // Used for testing
@@ -192,10 +221,20 @@ class DisjointSet {
 class Pair{
     private int height;
     private int ID;
+    private int numMembers;
 
-    Pair(int myID, int myHeight){
+    Pair(int myID, int myHeight, int myNumMembers){
         height = myHeight;
         ID = myID;
+        numMembers = myNumMembers;
+    }
+
+    public int getNumMembers() {
+        return numMembers;
+    }
+
+    public void incNumMembers() {
+        numMembers++;
     }
 
     public int getID() {
@@ -213,13 +252,17 @@ class Pair{
     public void increaseHeight() {
         height++;
     }
+
+    public void decreaseHeight() {
+        height--;
+    }
 }
 
 // Stores the information for each edge
 class Edges {
     // Two combinations for each edge
-    private int u;
-    private int v;
+    private final int u;
+    private final int v;
     // Status for each edge (1 = Don't destroy, 0 = Destroy edge)
     private int status;
 
