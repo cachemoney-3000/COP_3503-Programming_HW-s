@@ -5,10 +5,10 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Main {
+public class P2 {
     public char[][] solution;
 
-    public Main(int row, int col) {
+    public P2(int row, int col) {
         // Initialize the solution matrix
         solution = new char[row][col];
         for (int i = 0; i < row; i++) {
@@ -57,7 +57,7 @@ public class Main {
         // Loop through all the words we need to find
         for (int l = 1; l <= numWords; l++) {
             // This will initialize the solution 2d array
-            Main wordSearch = new Main(board.length, board[0].length);
+            P2 wordSearch = new P2(board.length, board[0].length);
             // Calls the wrapper function for finding a word in our 2d array of chars
             boolean found = wordSearch.searchWord(board, findWords[l]);
             // Prints the final result

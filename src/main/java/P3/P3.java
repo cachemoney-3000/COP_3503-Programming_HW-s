@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class Main {
+public class P3 {
 
     public static void main(String[] args) throws IOException {
-        Main set = new Main();
+        P3 set = new P3();
         // Get the file ready to read the input
         BufferedReader scanner = new BufferedReader(new FileReader("docs/P3/in2.txt"));
 
