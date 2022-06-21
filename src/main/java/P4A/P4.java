@@ -11,11 +11,11 @@ import java.util.*;
 public class P4 {
 
     public static void main(String[] args) throws IOException {
-        BufferedReader scanner = new BufferedReader(new FileReader("docs/P4/in.txt"));
+        BufferedReader scanner = new BufferedReader(new FileReader("docs/P4/in7.txt"));
 
         // Get the first line of the input
         String firstLine = scanner.readLine();
-        String[] arr1 = firstLine.split(" ", 3);
+        String[] arr1 = firstLine.split(" ", 2);
 
         // Initialize the values that store the location of the start and end point
         int startX = 0;
@@ -46,18 +46,18 @@ public class P4 {
                 visited[i][j] = 0;
 
                 // Get the starting point
-                if (line.contains("*")) {
+                if (board[i][j] == '*') {
                     startX = i;
-                    startY = line.indexOf("*");
+                    startY = j;
                 }
                 // Get the end point
-                if (line.contains("$")) {
+                else if (board[i][j] == '$') {
                     endX = i;
-                    endY = line.indexOf("$");
+                    endY = j;
                 }
 
                 // Implementation of portals (Uppercase letters)
-                if (Character.isUpperCase(board[i][j])){
+                else if (Character.isUpperCase(board[i][j])){
                     // 2 means it is a portal
                     visited[i][j] = 2;
                     // Get the uppercase letter and store it into the board
